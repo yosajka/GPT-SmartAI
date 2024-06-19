@@ -7,12 +7,16 @@ namespace Samples.Whisper
     public class Whisper : MonoBehaviour
     {
         [SerializeField] private Button recordButton;
+        [SerializeField] private Button stopRecordButton;
         [SerializeField] private Image progressBar;
         [SerializeField] private Text message;
         [SerializeField] private Dropdown dropdown;
+        [SerializeField] private GameObject settingPanel;
+        [SerializeField] private Button settingButton;
+        [SerializeField] private Button closeSettingButton;
         
         private readonly string fileName = "output.wav";
-        private readonly int duration = 5;
+        private readonly int duration = 30;
         
         private AudioClip clip;
         private bool isRecording;
@@ -30,6 +34,9 @@ namespace Samples.Whisper
             }
             recordButton.onClick.AddListener(StartRecording);
             dropdown.onValueChanged.AddListener(ChangeMicrophone);
+            settingButton.onClick.AddListener(OpenSetting);
+            closeSettingButton.onClick.AddListener(CloseSetting);
+            stopRecordButton.onClick.AddListener(EndRecording);
             
             var index = PlayerPrefs.GetInt("user-mic-device-index");
             dropdown.SetValueWithoutNotify(index);
@@ -43,6 +50,9 @@ namespace Samples.Whisper
         
         private void StartRecording()
         {
+            recordButton.gameObject.SetActive(false);
+            stopRecordButton.gameObject.SetActive(true);
+
             isRecording = true;
             recordButton.enabled = false;
 
@@ -55,7 +65,9 @@ namespace Samples.Whisper
 
         private async void EndRecording()
         {
-            message.text = "Transcripting...";
+            recordButton.gameObject.SetActive(true);
+            stopRecordButton.gameObject.SetActive(false);
+            isRecording = false;
             
             #if !UNITY_WEBGL
             Microphone.End(null);
@@ -73,8 +85,10 @@ namespace Samples.Whisper
             var res = await openai.CreateAudioTranscription(req);
 
             progressBar.fillAmount = 0;
-            message.text = res.Text;
+            ChatGPT.Instance.SendReply(res.Text);
             recordButton.enabled = true;
+
+            
         }
 
         private void Update()
@@ -91,6 +105,31 @@ namespace Samples.Whisper
                     EndRecording();
                 }
             }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (settingPanel.activeSelf)
+                {
+                    CloseSetting();
+                }
+                else
+                {
+                    OpenSetting();
+                }
+            }
+        }
+
+        private void OpenSetting()
+        {
+            Debug.Log("haha ");
+            settingPanel.SetActive(true);
+            settingButton.gameObject.SetActive(false);
+        }
+
+        private void CloseSetting()
+        {
+            settingPanel.SetActive(false);
+            settingButton.gameObject.SetActive(true);
         }
     }
 }

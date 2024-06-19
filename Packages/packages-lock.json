@@ -11,13 +11,13 @@
       "hash": "e7dc29b6fc6f6a6fca0c28c412fcbb087ad18777"
     },
     "com.srcnalt.openai-unity": {
-      "version": "https://github.com/srcnalt/OpenAI-Unity.git",
+      "version": "https://github.com/alphdevcode/OpenAI-Unity.git#feature/text-to-speech",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       },
-      "hash": "f7f501c076f27a12a2cbb2fa1235a106ce7b16e3"
+      "hash": "da792f418f0618f323a00c90db5cc1efbe30b39a"
     },
     "com.unity.burst": {
       "version": "1.8.15",
