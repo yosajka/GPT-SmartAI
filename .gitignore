@@ -59,6 +59,7 @@ ExportedObj/
 sysinfo.txt
 
 # Builds
+Build/
 *.apk
 *.aab
 *.unitypackage

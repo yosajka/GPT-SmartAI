@@ -21,7 +21,7 @@ namespace Samples.Whisper
         private AudioClip clip;
         private bool isRecording;
         private float time;
-        private OpenAIApi openai = new OpenAIApi();
+        private OpenAIApi openai;
 
         private void Start()
         {
@@ -68,12 +68,19 @@ namespace Samples.Whisper
             recordButton.gameObject.SetActive(true);
             stopRecordButton.gameObject.SetActive(false);
             isRecording = false;
+            time = 0;
+            progressBar.fillAmount = 0;
             
             #if !UNITY_WEBGL
             Microphone.End(null);
             #endif
             
             byte[] data = SaveWav.Save(fileName, clip);
+
+            if (openai == null)
+            {
+                openai = new OpenAIApi(SaveSystem.Instance.PlayerData.apiKey);
+            }
             
             var req = new CreateAudioTranscriptionsRequest
             {
@@ -84,7 +91,7 @@ namespace Samples.Whisper
             };
             var res = await openai.CreateAudioTranscription(req);
 
-            progressBar.fillAmount = 0;
+            
             ChatGPT.Instance.SendReply(res.Text);
             recordButton.enabled = true;
 
@@ -123,13 +130,13 @@ namespace Samples.Whisper
         {
             Debug.Log("haha ");
             settingPanel.SetActive(true);
-            settingButton.gameObject.SetActive(false);
+            //settingButton.gameObject.SetActive(false);
         }
 
         private void CloseSetting()
         {
             settingPanel.SetActive(false);
-            settingButton.gameObject.SetActive(true);
+            //settingButton.gameObject.SetActive(true);
         }
     }
 }

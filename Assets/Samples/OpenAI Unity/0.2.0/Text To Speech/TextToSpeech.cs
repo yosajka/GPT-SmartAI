@@ -14,9 +14,9 @@ namespace OpenAI
         //[SerializeField] private Button button;
         //[SerializeField] private Text buttonText;
 
-        private AudioSource audioSource;
+        [SerializeField] private AudioSource audioSource;
         
-        private OpenAIApi openai = new OpenAIApi();
+        private OpenAIApi openai;
 
         public static TextToSpeech Instance;
         private void Awake() 
@@ -27,13 +27,17 @@ namespace OpenAI
 
         private void Start()
         {
-            audioSource = GetComponent<AudioSource>();
+            //audioSource = GetComponent<AudioSource>();
         }
 
 
 
         public async void PlayReplyAudio(string text)
         {
+            if (openai == null)
+            {
+                openai = new OpenAIApi(SaveSystem.Instance.PlayerData.apiKey);
+            }
             var request = new CreateTextToSpeechRequest
             {
                 Input = text,
@@ -47,16 +51,19 @@ namespace OpenAI
             
             if(response.AudioClip) 
             {
-                StartCoroutine(PlayAnimation());
-                audioSource.PlayOneShot(response.AudioClip);
+                StartCoroutine(PlayAnimation(response.AudioClip.length));
+                audioSource.clip = response.AudioClip;
+                audioSource.Play();
+                //animator.SetTrigger("Talk");
             }
         }
 
-        private IEnumerator PlayAnimation()
+        private IEnumerator PlayAnimation(float length)
         {
-            animator.SetBool("Talking", true);
-            yield return new WaitUntil(() => !audioSource.isPlaying);
-            animator.SetBool("Talking", false);
+            animator.SetTrigger("Talk");
+            var waitForClipRemainingTime = new WaitForSeconds(length);
+            yield return waitForClipRemainingTime;
+            animator.SetTrigger("Talk");
         }
     }
 }

@@ -6,12 +6,15 @@ namespace OpenAI
 {
     public class ChatGPT : MonoBehaviour
     {
+        [Header("UI")]
         [SerializeField] private InputField inputField;
         [SerializeField] private Button button;
         [SerializeField] private ScrollRect scroll;
         
         [SerializeField] private RectTransform sent;
         [SerializeField] private RectTransform received;
+
+        [SerializeField] private Dropdown modelDropdown;
 
         private float height;
         private OpenAIApi openai = new OpenAIApi();
@@ -38,6 +41,17 @@ namespace OpenAI
                 SendReply();
             } 
                 
+        }
+
+        public void Init(string _prompt, string key)
+        {
+            prompt = _prompt;
+            openai = new OpenAIApi(key);
+            messages.Clear();
+            foreach (Transform child in scroll.content.transform)
+            {
+                Destroy(child.gameObject);
+            }
         }
 
         private void AppendMessage(ChatMessage message)
@@ -68,7 +82,10 @@ namespace OpenAI
             
             AppendMessage(newMessage);
 
-            if (messages.Count == 0) newMessage.Content = prompt + "\n" + inputField.text; 
+            if (messages.Count == 0) 
+            {
+                newMessage.Content = prompt + "\n" + inputField.text;
+            }
             
             messages.Add(newMessage);
             
@@ -79,7 +96,7 @@ namespace OpenAI
             // Complete the instruction
             var completionResponse = await openai.CreateChatCompletion(new CreateChatCompletionRequest()
             {
-                Model = "gpt-3.5-turbo-0125",
+                Model = modelDropdown.options[modelDropdown.value].text.ToLower(),
                 Messages = messages
             });
 
