@@ -16,6 +16,8 @@ namespace OpenAI
 
         [SerializeField] private Dropdown modelDropdown;
 
+        [SerializeField] private Button exitButton;
+
         private float height;
         private OpenAIApi openai = new OpenAIApi();
 
@@ -32,6 +34,7 @@ namespace OpenAI
         private void Start()
         {
             button.onClick.AddListener(() => SendReply());
+            exitButton.onClick.AddListener(() => Application.Quit());
         }
 
         private void Update() 
